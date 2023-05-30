@@ -24,14 +24,14 @@ function ready(videoGameData) {
     // 完成圖表一
     // 建立select
     // 自己的其中作業形式
-    let HappyData = prepareHappyFirstBarChartData(videoGameClean);
-    setHappyFirstCanvas(DataIntoFive[0], HappyData);
+    let HappyData = prepareHappyFirstBarChartData(DataIntoFive[0].content);
+    setHappyFirstCanvas(DataIntoFive[0].content, HappyData);
     // 獲得設定好選項的select
     let barchartSelect = addSelect(DataIntoFive);
-    // 綁訂到特定div
-    let bardiv = document.querySelector('#first-chart');
+    // // 綁訂到特定div
+    let bardiv = document.querySelector('#first-chart'); 
     // 選定特定的class
-    document.body.appendChild(barchartSelect);
+    document.body.appendChild(barchartSelect); // V
     // 綁定事件
     barchartSelect.addEventListener("change", function(event){
         let getValue = event.target.value;

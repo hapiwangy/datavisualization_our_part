@@ -9,6 +9,11 @@ function formatTicks(d){
 }
 export function setHappyFirstCanvas(originData,barChartData) {
     // 需要originData裡面的年份資訊
+
+    // console.log('in set first canvas');
+    // console.log(originData);
+    // console.log(barChartData);
+    // console.log('end first canvas');
     const svg_width = 550;
     const svg_height = 600;
     const chart_margin = {
@@ -26,8 +31,8 @@ export function setHappyFirstCanvas(originData,barChartData) {
         .append('g')
         .attr('transform', `translate(${chart_margin.left},${chart_margin.top})`);
     //scale
-    //V1.d3.extent find the max & min in Global_Sales
-    const xExtent = d3.extent(barChartData, d => d.Avg);
+    // //V1.d3.extent find the max & min in Global_Sales
+    // const xExtent = d3.extent(barChartData, d => d.Avg);
   
     const xMax = d3.max(barChartData, d => d.Avg);
     const xScale = d3.scaleLinear([0, xMax], [0, chart_width]);
@@ -124,7 +129,7 @@ export function setHappyLineChart(LineChartData, current) {
     
     // 定義y軸的比例尺
     const yScale = d3.scaleLinear()
-      .domain([d3.min(yData), d3.max(yData) + 50])
+      .domain([d3.min(yData) - 10, d3.max(yData) + 50])
       .range([innerHeight, 0]);
 
     
@@ -150,6 +155,7 @@ export function setHappyLineChart(LineChartData, current) {
       .call(d3.axisLeft(yScale));
     
     // 添加標點
+    // hover時再顯示數值
     g.selectAll(".dot")
       .data(xData)
       .enter()

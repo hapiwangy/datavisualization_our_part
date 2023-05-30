@@ -23,9 +23,10 @@ export function prepareHappyFirstBarChartData(videoGameData) {
             dif_genre.push(name);
         }
     }
+    
     // 這裡把銷售額的單位從百萬變成一千(不然平均的時候除不了)
     for (let i = 0; i < ArrayData.length; i++){
-        ArrayData[i]["Avg"] = ArrayData[i]["Sales"] * 1000 / ArrayData[i]["Count"];
+        ArrayData[i]["Avg"] = ArrayData[i]["Sales"]  * 1000 / ArrayData[i]["Count"];
     }
 
     const dataMap = d3.rollup(
@@ -39,9 +40,25 @@ export function prepareHappyFirstBarChartData(videoGameData) {
     ).sort((a, b)=>{
         return d3.descending(a.Avg, b.Avg);
     });
-    // console.log('consequence');
+
+    // 尋找最大值
+    let maxobj = 0;
+    const maxSaleGenre = dataArray[0].Genre;
+    console.log(maxSaleGenre);
+    const dA = videoGameData.sort((a, b)=>{
+        return d3.descending(a.Global_Sales, b.Global_Sales);
+    })
+    console.log('consequence');
+    for (let i = 0;i < dA.length; i++){
+ 
+        if (dA[i].Genre == maxSaleGenre){
+            maxobj = dA[i];
+            break;
+        }
+    }
     // console.log(ArrayData); 
-    // console.log(dataArray);
+    console.log(maxobj);
+
     return dataArray;
     
 }
@@ -65,6 +82,7 @@ export function prepareHappyLineChartData(DataIntoFive) {
         }
         consequence[currentGenre] = arr;
     }
+    console.log('preparelinechart');
     console.log(consequence);
     // 回傳一個[genere:array[8]]的陣列，分別代表每個種類和不同時間段的遊戲數量。
     return consequence;
