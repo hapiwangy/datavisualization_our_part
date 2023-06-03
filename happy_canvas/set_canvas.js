@@ -164,16 +164,104 @@ export function setHappyLineChart(LineChartData, current) {
       .attr("x", (d, i) => xScale(d))
       .attr("y", (d, i) => yScale(yData[i]) - 20)
       .text((d, i) => "(" + d + ", " + yData[i] + ")");
-// 連接點與點的線段
-const line = d3.line()
-  .x((d, i) => xScale(xData[i]))
-  .y((d, i) => yScale(yData[i]));
+    // 連接點與點的線段
+    const line = d3.line()
+      .x((d, i) => xScale(xData[i]))
+      .y((d, i) => yScale(yData[i]));
 
-// 繪製連接線
-g.append("path")
-  .datum(xData)
-  .attr("fill", "none")
-  .attr("stroke", "steelblue")
-  .attr("stroke-width", 2)
-  .attr("d", line);
+    // 繪製連接線
+    g.append("path")
+      .datum(xData)
+      .attr("fill", "none")
+      .attr("stroke", "steelblue")
+      .attr("stroke-width", 2)
+      .attr("d", line);
+}
+
+export function SetHappyPieChart(Data, which){
+  // 傳入整理好的資料和要用哪一個來作圖(數字表示)
+  let region = Data[which]["Sales"];
+  let Sales = Data[which]["SalesNumber"];
+
+  let data = region.map(function(label, index) {
+    return {
+      label: label,
+      value: Sales[index]
+    };
+  });
+
+  // console.log(data);
+  // const svgWidth = parseInt(d3.select(".happy-piechart-container").style("width")),
+  // svgHeight = svgWidth*0.8,
+  // margin = 40;
+  const svgWidth = 600,
+  svgHeight = svgWidth*0.8,
+  margin = 40;
+  const svg = d3.select(".happy-piechart-container")
+  .append("svg")
+  .attr("width", svgWidth)
+  .attr("height", svgHeight);
+  svg.append("g")
+  .attr("class", "slices")
+  .attr('transform', `translate(${svgWidth / 2}, ${svgHeight / 2})`);
+  svg.append("g")
+  .attr("class", "labels");
+  svg.append("g")
+  .attr("class", "lines");
+  const color = d3.scaleOrdinal()
+                .range(["#0bbc17","#F96262", '#ffbe32', '#e271fc']);
+  const radius = Math.min(svgWidth, svgHeight) / 2 - margin;
+  const piechart = d3.pie().value(d => d.value);
+  const arc = d3.arc()
+              .innerRadius(0)
+              .outerRadius(radius)
+              .padAngle(.02)
+  const outerArc = d3.arc()
+                   .outerRadius(radius * 0.9)
+                   .innerRadius(radius * 0.9)
+  const data_ready = piechart(data) 
+  const total = d3.sum(data, d => d.value)
+  data.forEach(d => {
+    d.percentage = Math.round((d.value/total)*100)
+  })
+// 建立pie
+const cutePie = svg.select('.slices')
+        .selectAll('g')
+        .data(data_ready)
+        .enter()
+        .append('g')
+        .attr('class', 'arc')
+
+ cutePie.append('path')
+        .attr('d', arc)
+        .attr('fill', color)
+        .attr("stroke", "#fff")
+        .style("stroke-width", "2px")
+        .style("opacity", 1);
+  const arcText = d3.arc()
+        .innerRadius(radius)
+        .outerRadius(radius - 10)
+
+const itemText = cutePie.append('text')
+              .attr('transform', d => `translate(${arcText.centroid(d)})`)
+              .text(d => d.data.label + d.data.percentage + '%')
+              .style('text-anchor', 'middle')
+              .style('font-size', 16)
+              .style('fill', 'black')
+              d3.selectAll('.arc path')
+              .style('cursor', 'pointer')
+              .on('mouseover', function(){
+                 d3.select(this)
+                   .transition()
+                   .duration(500)
+                   .style("filter", "drop-shadow(2px 4px 6px black)")
+                   .style('transform', 'scale(1.1)')
+              })
+              .on('mouseleave', function(){
+                d3.select(this)
+                  .transition()
+                  .duration(500)
+                  .style("filter", "drop-shadow(0 0 0 black)")
+                  .style('transform', 'scale(1)')
+              })
 }

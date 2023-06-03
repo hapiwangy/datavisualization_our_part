@@ -3,12 +3,15 @@ import {
     filterData,
 } from './utilities.js';
 import {
+    SetHappyPieChart,
     setHappyFirstCanvas,
-    setHappyLineChart
+    setHappyLineChart,
+
 } from './happy_canvas/set_canvas.js'
 import {
     prepareHappyFirstBarChartData,
-    prepareHappyLineChartData
+    prepareHappyLineChartData,
+    prepareHappyPieChart
 } from './happy_canvas/prepare_data.js'
 import  {
     divideintofive,
@@ -60,6 +63,26 @@ function ready(videoGameData) {
         let HappyLineChartData = prepareHappyLineChartData(DataIntoFive);
         setHappyLineChart(HappyLineChartData, genres[getValue]);
     })
+
+    // 圖表三 圓餅圖
+    let piechartData = prepareHappyPieChart(videoGameClean);
+    SetHappyPieChart(piechartData, 0);
+    // 獲得設定好選項的select
+    let piechartselect = addSelectGenre(genres);
+    // 綁訂到特定div
+    let piediv = document.querySelector('#pie-chart');
+    // 選定特定的class
+    document.body.appendChild(piechartselect);
+    // 綁定事件
+    piechartselect.addEventListener("change", function(event){
+        let getValue = event.target.value;
+        piediv.innerHTML = "";
+        // console.log(getValue)
+        let HappypieChartData = piechartData;
+        SetHappyPieChart(HappypieChartData, getValue);
+    })
+
+
   }
 // 資料讀取和entry point和data cleaning
 d3.csv('./data/Video_Games_Sales_as_at_22_Dec_2016.csv', type).then(
