@@ -35,6 +35,7 @@ export function addSelect(Datas){
         option.value = i;
         FirstCanvasSelect.add(option);
     }
+
     return FirstCanvasSelect;
 }
 export function addSelectGenre(genres){
@@ -45,5 +46,6 @@ export function addSelectGenre(genres){
         option.value = i;
         FirstCanvasSelect.add(option);
     }
+
     return FirstCanvasSelect;   
 }

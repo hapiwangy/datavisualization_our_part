@@ -1,3 +1,7 @@
+import {
+    divideintofive
+} from "./others.js";
+
 export function prepareHappyFirstBarChartData(videoGameData) {
     // 回傳整個東西
     // console.log(videoGameData);
@@ -57,11 +61,9 @@ export function prepareHappyFirstBarChartData(videoGameData) {
     
 }
 
-
-
 export function prepareHappyLineChartData(DataIntoFive) {
     // console.log(DataIntoFive);
-    let genres = ['Shooter','Role-Playing','Puzzle','Platform','Racing','Sports','Misc','Fighting','Action','Simulation','Adventure','Strategy'];
+    let genres = ['Shooter','Puzzle','Platform','Racing','Sports','Misc','Fighting','Action','Simulation','Adventure'];
     let consequence = {};
     var maxSaleGameInthisFive =[];
     for (let i = 0;i < genres.length; i++){
@@ -94,83 +96,3 @@ export function prepareHappyLineChartData(DataIntoFive) {
     // 回傳一個[genere:array[8]]的陣列，分別代表每個種類和不同時間段的遊戲數量。
     return [consequence,maxSaleGameInthisFive];
 }
-
-export function prepareHappyPieChart(videoGameData){
-    // 先用總和的資料來做分布
-    let ArrayData = [];
-    let dif_genre = [];
-    let Sales = ["JP_Sales", "NA_Sales", "EU_Sales", "Other_Sales"];
-    for (let i = 0;i < videoGameData.length; i++){
-        let name = videoGameData[i]['Genre'];
-        if (dif_genre.includes(name)){
-            ArrayData[dif_genre.indexOf(name)].SalesNumber[0] += videoGameData[i]['JP_Sales'];
-            ArrayData[dif_genre.indexOf(name)].SalesNumber[1] += videoGameData[i]['NA_Sales'];
-            ArrayData[dif_genre.indexOf(name)].SalesNumber[2] += videoGameData[i]['EU_Sales'];
-            ArrayData[dif_genre.indexOf(name)].SalesNumber[3] += videoGameData[i]['Other_Sales'];
-            // ArrayData[dif_genre.indexOf(name)].SalesNumber[4] += videoGameData[i]['Global_Sales'];
-            
-        } else {
-            let obj = {"Genre":name, Sales, SalesNumber:[]};
-            obj.SalesNumber.push(videoGameData[i]["EU_Sales"]);
-            obj.SalesNumber.push(videoGameData[i]["NA_Sales"]);
-            obj.SalesNumber.push(videoGameData[i]["JP_Sales"]);
-            obj.SalesNumber.push(videoGameData[i]["Other_Sales"]);
-            // obj.SalesNumber.push(videoGameData[i]["Global_Sales"]);
-            ArrayData.push(obj);
-            dif_genre.push(name);
-        }
-    }
-    for (let i = 0;i < ArrayData.length; i++){
-        ArrayData[i].SalesNumber = ArrayData[i].SalesNumber.map((k)=>{return parseInt(k);});
-    }
-    // 回傳一個 [{種類, 地區銷售額1, 地區銷售額2...}]的資料
-    return ArrayData;
-}
-
-
-export function calculatePublisherSales(videoGameClean) {
-    const publisherSalesData = [];
-  
-    // 使用 d3.group 依發行商分組
-    const publishers = d3.group(videoGameClean, d => d.Publisher);
-  
-    publishers.forEach((games, publisher) => {
-      const totalSales = {
-        publisher: publisher,
-        NA_Sales: d3.sum(games, d => d.NA_Sales),
-        EU_Sales: d3.sum(games, d => d.EU_Sales),
-        JP_Sales: d3.sum(games, d => d.JP_Sales),
-        Other_Sales: d3.sum(games, d => d.Other_Sales)
-      };
-  
-      // 統計遊戲款數
-      const gameCount = games.length;
-  
-      // 計算平均銷售量
-      const averageSales = {
-        publisher: publisher,
-        NA_Sales: totalSales.NA_Sales / gameCount,
-        EU_Sales: totalSales.EU_Sales / gameCount,
-        JP_Sales: totalSales.JP_Sales / gameCount,
-        Other_Sales: totalSales.Other_Sales / gameCount
-      };
-  
-      // 將銷售額單位從百萬轉換為千
-      for (const key in averageSales) {
-        if (key !== 'publisher') {
-          averageSales[key] *= 1000;
-        }
-      }
-  
-      publisherSalesData.push(averageSales);
-    });
-  
-    // 根據平均銷售量排序
-    publisherSalesData.sort((a, b) => b.NA_Sales - a.NA_Sales);
-  
-    // 只保留前20名發行商
-    const top20Publishers = publisherSalesData.slice(0, 20);
-  
-    return top20Publishers;
-  }
-  

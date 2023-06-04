@@ -1,20 +1,41 @@
 const parseNA = string => (string === '' ? undefined : string);
 const parseDate = string => d3.timeParse('%Y-%m-%d')(string);
+export const barcharttooltip = `
+<div class = "tooltip">
+<div class = "tip-header">
+    <h3></h3>
+    <h4></h4>
+    <h5></h5>
+</div>
+<div class = "tip-body"></div>
+</div>`
+export const linecharttooltip = `
+<div class = "tooltip1">
+<div class = "tip-header1">
+    <h1></h1>
+    <h2></h2>
+</div>
+<div class = "tip-body1"></div>
+</div>`
 function formatTicks(d){ 
-    
     return d3.format('~s')(d) 
         .replace('M','mil') 
         .replace('G','bil') 
         .replace('T','tri')
 }
-export function setHappyFirstCanvas(originData,barChartData) {
+export function setHappyFirstCanvas(originData,barChartData,maxObj) {
     // 需要originData裡面的年份資訊
-
     // console.log('in set first canvas');
     // console.log(originData);
     // console.log(barChartData);
     // console.log('end first canvas');
-    const svg_width = 550;
+    
+    // 存放目前的年份
+    const YearRange = d3.extent(originData, d=>d.Year_of_Release);
+    const start = YearRange[0];
+    const end = YearRange[1]; 
+    
+    const svg_width = 600;
     const svg_height = 600;
     const chart_margin = {
         top: 80,
@@ -67,7 +88,7 @@ export function setHappyFirstCanvas(originData,barChartData) {
         .style('font-size', '0.8em')
         .style('fill', '#555');
     header.append('tspan')
-        .text(`(from ${originData['start']} to ${originData.end})`)
+        .text(`(from ${start} to ${end})`)
         .attr('x', 150)
         .attr('y', 20)
         .style('font-size', '0.8em')
@@ -87,102 +108,169 @@ export function setHappyFirstCanvas(originData,barChartData) {
         .call(yAxis);
     yAxisDraw.selectAll('text')
         .attr('dx', '-0.6em');
+    const tip =d3.select('.tooltip')
+    function mouseover (e){
+      const thisBarData = d3.select(this).data()[0]
+      let Salesnumber;  
+      let MaxSaleGame;
+    	for(let i =0; i< maxObj.length;i++)
+      {
+      	if(maxObj[i].Genre == thisBarData.Genre)
+        {
+        	MaxSaleGame = maxObj[i].which;
+        }
+      }
+      if(parseInt(MaxSaleGame.Global_Sales)/10<1)
+      {
+        Salesnumber = (MaxSaleGame.Global_Sales*100).toFixed(0);
+      }
+      else 
+      {
+        Salesnumber = (parseInt(MaxSaleGame.Global_Sales)/10).toFixed(1)+'k';
+      }
+      let bodydata=[
+          ['GlobalSales',Salesnumber],
+          ['Platform',MaxSaleGame.Platform],
+          ['Publisher',MaxSaleGame.Publisher],
+        ] 
+      tip.style('left',(e.clientX+15)+'px')
+        .style('top',e.clientY+'px')
+        .style('opacity',0.98)
+      tip.select('h3').html(`${MaxSaleGame.Name}`);
+      tip.select('h4').html("Genre: "+`${MaxSaleGame.Genre}`);
+      tip.select('h5').html("ReleaseYear: "+`${MaxSaleGame.Year_of_Release}`);
+      d3.select('.tip-body').selectAll('p').data(bodydata)
+          .join('p').attr('class', 'tip-info')
+          .html(d=>`${d[0]}:${d[1]}`);  
+    }
+    function mousemove (e){
+      tip.style('left',e.clientX+'px')
+        .style('top',e.clientY+'px')
+        .style('opacity',0.98)          
+    }
+    function mouseout(){
+      tip.style('opacity',0);
+    }
+    d3.selectAll('.bar')
+      .on('mouseover',mouseover)  
+      .on('mousemove',mousemove)
+      .on('mouseout',mouseout)
 }
 
-export function setHappyLineChart(LineChartData, current) {
-    // input資料是一個[genere:array[8]]的陣列，分別代表每個種類和不同時間段的遊戲數量。    
+export function setHappyLineChart(LineChartData, current,maxSaleGameInthisFive) {
+  // input資料是一個[genere:array[8]]的陣列，分別代表每個種類和不同時間段的遊戲數量。    
+  let xData = [];
+  let yData = [];
+  for (let x = 0; x < LineChartData[current].length; x++){
+      xData.push(parseInt(LineChartData[current][x].year));
+      yData.push(parseInt(LineChartData[current][x].count));
+  }
+  // console.log(xData);
+  // console.log(yData);
+  
+  const width = 600;
+  const height = 360;
+  const margin = { top: 20, right: 20, bottom: 30, left: 30 };
+  const innerWidth = width - margin.left - margin.right;
+  const innerHeight = height - margin.top - margin.bottom;
+  
+  // 創建SVG元素
+  const svg = d3.select(".happy-linechart-container")
+    .append("svg")
+    .attr("width", width)
+    .attr("height", height);
+  // 創建圖表標題
+  svg.append("text")
+    .attr("class", "chart-title")
+    .attr("x", width / 2 - 150    )
+    .attr("y", margin.top)
+    .attr("id", "font")
+    .text(`numbers of ${current} games in different segements`);
+  // 創建內部容器
+  const g = svg.append("g")
+    .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
+  
+  // 定義x軸的比例尺
+  const xScale = d3.scaleLinear()
+    .domain([d3.min(xData)-5, d3.max(xData) + 5])
+    .range([0, innerWidth]);
+  
+  // 定義y軸的比例尺
+  const yScale = d3.scaleLinear()
+    .domain([d3.min(yData) - 10, d3.max(yData) + 50])
+    .range([innerHeight, 0]);
 
-    let xData = [];
-    let yData = [];
-    for (let x = 0; x < LineChartData[current].length; x++){
-        xData.push(parseInt(LineChartData[current][x].year));
-        yData.push(parseInt(LineChartData[current][x].count));
-    }
-    console.log(xData);
-    console.log(yData);
+  
+  // 繪製散點
+  g.selectAll("circle")
+    .data(xData)
+    .enter()
+    .append("circle")
+    .attr("cx", (d, i) => xScale(d))
+    .attr("cy", (d, i) => yScale(yData[i]))
+    .attr("r", 10)
+    .attr("fill", "steelblue");
+  
+  // 添加x軸
+  g.append("g")
+    .attr("class", "axis")
+    .attr("transform", "translate(0," + innerHeight + ")")
+    .call(d3.axisBottom(xScale));
+  
+  // 添加y軸
+  g.append("g")
+    .attr("class", "axis")
+    .call(d3.axisLeft(yScale));
+  
+  // 添加標點
+  // hover時再顯示數值
+  g.selectAll(".dot")
+    .data(xData)
+    .enter()
+    .append("text")
+    .attr("class", "dot")
+    .attr("x", (d, i) => xScale(d))
+    .attr("y", (d, i) => yScale(yData[i]) - 20)
+//      .text((d, i) => "(" + d + ", " + yData[i] + ")");
+// 連接點與點的線段
+const line = d3.line()
+.x((d, i) => xScale(xData[i]))
+.y((d, i) => yScale(yData[i]));
 
-    const width = 1000;
-    const height = 600;
-    const margin = { top: 20, right: 20, bottom: 30, left: 30 };
-    const innerWidth = width - margin.left - margin.right;
-    const innerHeight = height - margin.top - margin.bottom;
-    
-    // 創建SVG元素
-    const svg = d3.select(".happy-linechart-container")
-      .append("svg")
-      .attr("width", width)
-      .attr("height", height);
-    // 創建圖表標題
-    svg.append("text")
-      .attr("class", "chart-title")
-      .attr("x", width / 2 - 150    )
-      .attr("y", margin.top)
-      .text(`numbers of ${current} games in different times`);
-    // 創建內部容器
-    const g = svg.append("g")
-      .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
-    
-    // 定義x軸的比例尺
-    const xScale = d3.scaleLinear()
-      .domain([d3.min(xData)-5, d3.max(xData) + 5])
-      .range([0, innerWidth]);
-    
-    // 定義y軸的比例尺
-    const yScale = d3.scaleLinear()
-      .domain([d3.min(yData) - 10, d3.max(yData) + 50])
-      .range([innerHeight, 0]);
-
-    
-    // 繪製散點
-    g.selectAll("circle")
-      .data(xData)
-      .enter()
-      .append("circle")
-      .attr("cx", (d, i) => xScale(d))
-      .attr("cy", (d, i) => yScale(yData[i]))
-      .attr("r", 5)
-      .attr("fill", "steelblue");
-    
-    // 添加x軸
-    g.append("g")
-      .attr("class", "axis")
-      .attr("transform", "translate(0," + innerHeight + ")")
-      .call(d3.axisBottom(xScale));
-    
-    // 添加y軸
-    g.append("g")
-      .attr("class", "axis")
-      .call(d3.axisLeft(yScale));
-    
-    // 添加標點
-    // hover時再顯示數值
-    g.selectAll(".dot")
-      .data(xData)
-      .enter()
-      .append("text")
-      .attr("class", "dot")
-      .attr("x", (d, i) => xScale(d))
-      .attr("y", (d, i) => yScale(yData[i]) - 20)
-      .text((d, i) => "(" + d + ", " + yData[i] + ")");
-    // 連接點與點的線段
-    const line = d3.line()
-      .x((d, i) => xScale(xData[i]))
-      .y((d, i) => yScale(yData[i]));
-
-    // 繪製連接線
-    g.append("path")
-      .datum(xData)
-      .attr("fill", "none")
-      .attr("stroke", "steelblue")
-      .attr("stroke-width", 2)
-      .attr("d", line);
+// 繪製連接線
+g.append("path")
+.datum(xData)
+.attr("fill", "none")
+.attr("stroke", "steelblue")
+.attr("stroke-width", 2)
+.attr("d", line);
+const tip1 = d3.select('.tooltip1')
+function mouseover(e){
+  const thisLineData = d3.select(this).data()[0]
+  let SelectPoint;
+  for(let i =0; i<xData.length ;i++)
+  {
+    if(thisLineData == xData[i])
+      SelectPoint=[xData[i],yData[i]];
+  }
+  tip1.style('left',(e.clientX+15)+'px')
+      .style('top',e.clientY+'px')
+      .style('opacity',0.98)
+      .html("("+`${SelectPoint[0]}`+','+`${SelectPoint[1]}`+")");
+}
+function mouseout(){
+  tip1.style('opacity',0);
+}
+d3.selectAll("circle")
+  .on('mouseover',mouseover)
+  .on('mouseout',mouseout);
 }
 
 export function SetHappyPieChart(Data, which){
   // 傳入整理好的資料和要用哪一個來作圖(數字表示)
   let region = Data[which]["Sales"];
   let Sales = Data[which]["SalesNumber"];
-
+  console.log(Data)
   let data = region.map(function(label, index) {
     return {
       label: label,
@@ -197,6 +285,7 @@ export function SetHappyPieChart(Data, which){
   const svgWidth = 600,
   svgHeight = svgWidth*0.8,
   margin = 40;
+  
   const svg = d3.select(".happy-piechart-container")
   .append("svg")
   .attr("width", svgWidth)
@@ -208,6 +297,11 @@ export function SetHappyPieChart(Data, which){
   .attr("class", "labels");
   svg.append("g")
   .attr("class", "lines");
+  svg.append("text")
+  .attr("class", "chart-title")
+  .attr("x", svgWidth / 2 - 150    )
+  .attr("y", svgHeight - 10)
+  .text(`${Data[which].Genre} Sales in different region`);
   const color = d3.scaleOrdinal()
                 .range(["#0bbc17","#F96262", '#ffbe32', '#e271fc']);
   const radius = Math.min(svgWidth, svgHeight) / 2 - margin;
@@ -264,4 +358,109 @@ const itemText = cutePie.append('text')
                   .style("filter", "drop-shadow(0 0 0 black)")
                   .style('transform', 'scale(1)')
               })
+}
+
+
+
+export function setBarChartCanvas(data, region) {
+  const svgWidth = 700;
+  const svgHeight = 500;
+  const margin = { top: 80, right: 40, bottom: 40, left: 150 };
+  const chartWidth = svgWidth - margin.left - margin.right;
+  const chartHeight = svgHeight - margin.top - margin.bottom;
+
+  // 移除舊的圖表元素
+  d3.select('#bar-chart-container svg').remove();
+
+  const filteredData = data.filter(d => d[region] > 0)
+    .sort((a, b) => b[region] - a[region])
+    .slice(0, 20);
+
+  const svg = d3.select('#bar-chart-container')
+    .append('svg')
+    .attr('width', svgWidth)
+    .attr('height', svgHeight);
+
+  const chart = svg.append('g')
+    .attr('transform', `translate(${margin.left},${margin.top})`);
+
+  const xScale = d3.scaleLinear()
+    .domain([0, d3.max(filteredData, d => d[region])])
+    .range([0, chartWidth]);
+
+  const yScale = d3.scaleBand()
+    .domain(filteredData.map(d => d.publisher))
+    .range([0, chartHeight])
+    .paddingInner(0.1);
+
+  const xAxis = d3.axisBottom(xScale)
+    .tickFormat(d => `${d}k`);
+
+  chart.append('g')
+    .attr('transform', `translate(0,${chartHeight})`)
+    .call(xAxis);
+
+  const yAxis = d3.axisLeft(yScale);
+  chart.append('g')
+    .call(yAxis);
+
+  // 設定顏色比例尺
+  const colorScale = d3.scaleOrdinal(d3.schemeCategory10);
+
+  const bars = chart.selectAll('.bar')
+    .data(filteredData);
+
+  bars.exit()
+    .transition()
+    .duration(1000)
+    .attr('opacity', 0)
+    .remove();
+
+  bars.enter()
+    .append('rect')
+    .attr('class', 'bar')
+    .attr('x', 0)
+    .attr('y', d => yScale(d.publisher))
+    .attr('width', 0)
+    .attr('height', yScale.bandwidth())
+    .attr('fill', d => colorScale(d.publisher))
+    .merge(bars)
+    .transition()
+    .duration(800)
+    .attr('width', d => xScale(d[region]))
+    .attr('y', d => yScale(d.publisher))
+    .attr('opacity', 1);
+
+  // 添加圖表標題
+  svg.append('text')
+    .attr('class', 'chart-title')
+    .attr('x', svgWidth / 2)
+    .attr('y', margin.top / 2)
+    .attr('text-anchor', 'middle')
+    .text(`Top 20 Publishers for ${region}`);
+
+  // 添加 x 軸標籤
+  chart.append('text')
+    .attr('class', 'unit-label')
+    .attr('x', chartWidth -70)
+    .attr('y', chartHeight - margin.top + 65)
+    .attr('text-anchor', 'middle')
+    .text('Average Sales (in thousands)');
+
+  // 添加 y 軸標籤
+  chart.append('text')
+    .attr('class', 'unit-label')
+    .attr('x', -margin.left + 85)
+    .attr('y', -margin.top / 3)
+    .attr('text-anchor', 'start')
+    .text('Publisher');
+
+  // 更新下拉式選單的事件處理程序
+  d3.select('#region-select').on('change', function() {
+    const selectedRegion = this.value;
+    const filteredData = data.filter(d => d[selectedRegion] > 0)
+      .sort((a, b) => b[selectedRegion] - a[selectedRegion])
+      .slice(0, 20);
+    setBarChartCanvas(filteredData, selectedRegion);
+  });
 }
