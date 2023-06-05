@@ -50,3 +50,13 @@ h2,h4,h5{
   background:#e0e0e0;
 }
 
+.parallel {
+  display: flex;
+}
+
+.para {
+  flex: 1;
+  border: 1px solid black;
+  padding: 10px;
+}
+

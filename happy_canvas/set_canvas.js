@@ -25,10 +25,6 @@ function formatTicks(d){
 }
 export function setHappyFirstCanvas(originData,barChartData,maxObj) {
     // 需要originData裡面的年份資訊
-    // console.log('in set first canvas');
-    // console.log(originData);
-    // console.log(barChartData);
-    // console.log('end first canvas');
     
     // 存放目前的年份
     const YearRange = d3.extent(originData, d=>d.Year_of_Release);
@@ -169,15 +165,15 @@ export function setHappyLineChart(LineChartData, current,maxSaleGameInthisFive) 
   // console.log(yData);
   
   const width = 600;
-  const height = 360;
-  const margin = { top: 20, right: 20, bottom: 30, left: 30 };
+  const height = 600;
+  const margin = { top: 20, right: 20, bottom: 30, left: 40 };
   const innerWidth = width - margin.left - margin.right;
   const innerHeight = height - margin.top - margin.bottom;
   
   // 創建SVG元素
   const svg = d3.select(".happy-linechart-container")
     .append("svg")
-    .attr("width", width)
+    .attr("width", width + 10)
     .attr("height", height);
   // 創建圖表標題
   svg.append("text")
@@ -192,12 +188,12 @@ export function setHappyLineChart(LineChartData, current,maxSaleGameInthisFive) 
   
   // 定義x軸的比例尺
   const xScale = d3.scaleLinear()
-    .domain([d3.min(xData)-5, d3.max(xData) + 5])
+    .domain([d3.min(xData)-2, d3.max(xData)])
     .range([0, innerWidth]);
   
   // 定義y軸的比例尺
   const yScale = d3.scaleLinear()
-    .domain([d3.min(yData) - 10, d3.max(yData) + 50])
+    .domain([d3.min(yData), d3.max(yData) + 20])
     .range([innerHeight, 0]);
 
   
@@ -278,12 +274,9 @@ export function SetHappyPieChart(Data, which){
     };
   });
 
-  // console.log(data);
-  // const svgWidth = parseInt(d3.select(".happy-piechart-container").style("width")),
-  // svgHeight = svgWidth*0.8,
-  // margin = 40;
+
   const svgWidth = 600,
-  svgHeight = svgWidth*0.8,
+  svgHeight = 600,
   margin = 40;
   
   const svg = d3.select(".happy-piechart-container")

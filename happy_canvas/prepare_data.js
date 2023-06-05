@@ -1,7 +1,5 @@
 export function prepareHappyFirstBarChartData(videoGameData) {
-    // 回傳整個東西
-    // console.log(videoGameData);
-
+    // 輸入{origin_obj}, 輸出這些origin_obj裡面的平均銷售額跟分類，以及每個種類銷售額最好的遊戲
     let ArrayData = [];
     let dif_genre = [];
     for (let i = 0;i < videoGameData.length; i++){
@@ -33,13 +31,14 @@ export function prepareHappyFirstBarChartData(videoGameData) {
     ).sort((a, b)=>{
         return d3.descending(a.Avg, b.Avg);
     });
+
     // 尋找最大值
     const dA = videoGameData.sort((a,b)=>{
         return d3.descending(a.Global_Sales,b.Global_Sales);
     });
     let maxObj = [];
     let genres = [];
-    // dA = []
+    // 由於前面已經排序過了，所以每個種類第一次出現的遊戲的銷售最大值就是該種類的銷售最大的遊戲
     for (let i = 0;i < dA.length; i++){
     	if (genres.includes(dA[i].Genre)) {
       		if (maxObj[genres.indexOf(dA[i].Genre)].Global_Sales < dA[i].Global_Sales){
@@ -52,7 +51,6 @@ export function prepareHappyFirstBarChartData(videoGameData) {
         maxObj.push(obj);
       }
     }
-
     return [dataArray,maxObj];
     
 }
@@ -60,7 +58,7 @@ export function prepareHappyFirstBarChartData(videoGameData) {
 
 
 export function prepareHappyLineChartData(DataIntoFive) {
-    // console.log(DataIntoFive);
+    // 讀進{origin_obj}，每個種類每年的數量統計
     let genres = ['Shooter','Role-Playing','Puzzle','Platform','Racing','Sports','Misc','Fighting','Action','Simulation','Adventure','Strategy'];
     let consequence = {};
     var maxSaleGameInthisFive =[];
@@ -86,12 +84,7 @@ export function prepareHappyLineChartData(DataIntoFive) {
         }) //五年內最賺錢的遊戲排行
         maxSaleGameInthisFive.push(dB[0]);
     }
-    //console.log(maxSaleGameInthisFive)
-    // console.log('preparelinechart');
-    // console.log(consequence);
-    // console.log('duringfive')
-    //console.log(maxSaleGameInthisFive);
-    // 回傳一個[genere:array[8]]的陣列，分別代表每個種類和不同時間段的遊戲數量。
+
     return [consequence,maxSaleGameInthisFive];
 }
 
@@ -107,7 +100,6 @@ export function prepareHappyPieChart(videoGameData){
             ArrayData[dif_genre.indexOf(name)].SalesNumber[1] += videoGameData[i]['NA_Sales'];
             ArrayData[dif_genre.indexOf(name)].SalesNumber[2] += videoGameData[i]['EU_Sales'];
             ArrayData[dif_genre.indexOf(name)].SalesNumber[3] += videoGameData[i]['Other_Sales'];
-            // ArrayData[dif_genre.indexOf(name)].SalesNumber[4] += videoGameData[i]['Global_Sales'];
             
         } else {
             let obj = {"Genre":name, Sales, SalesNumber:[]};
@@ -115,7 +107,6 @@ export function prepareHappyPieChart(videoGameData){
             obj.SalesNumber.push(videoGameData[i]["NA_Sales"]);
             obj.SalesNumber.push(videoGameData[i]["JP_Sales"]);
             obj.SalesNumber.push(videoGameData[i]["Other_Sales"]);
-            // obj.SalesNumber.push(videoGameData[i]["Global_Sales"]);
             ArrayData.push(obj);
             dif_genre.push(name);
         }
