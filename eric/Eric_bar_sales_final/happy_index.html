@@ -7,14 +7,7 @@
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
-    <!-- 把選擇的按鈕放在一起 -->
-    <div class="PutSelectHere"></div>
-    <!-- 放置不同的chart用不同的container -->
-    <div class="parallel">
-        <div class="happy-chart-container para" id="first-chart"></div>
-        <div class="happy-linechart-container para" id="line-chart"></div>
-        <div class="happy-piechart-container para" id="pie-chart"></div>
-    </div>
+    <!-- <div class="happy-chart-container" id="first-chart"></div> -->
     <div id="bar-chart-container"></div>
     <div class="tooltip">
         <div class="tip-header">
@@ -23,6 +16,7 @@
         </div>
     </div>
     <select id="region-select"></select>
+    <script src="https://d3js.org/d3.v7.min.js"></script>
     <script src="//unpkg.com/d3"></script>
     <script type="module" src="happy_main.js"></script>
 </body>

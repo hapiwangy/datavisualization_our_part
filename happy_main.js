@@ -7,7 +7,7 @@ import {
     SetHappyPieChart,
     setHappyFirstCanvas,
     setHappyLineChart,
-    setBarChartCanvas,
+    setEricBarChartCanvas,
     // tooltip的參數
     barcharttooltip,
     linecharttooltip
@@ -119,6 +119,8 @@ function ready(videoGameData) {
 
     // eric pic
     // 取得各發行商在不同地區的銷售量
+
+    // 取得各發行商在不同地區的銷售量
     const publisherSalesData = calculatePublisherSales(videoGameClean);
   
     const select = d3.select('#region-select');
@@ -130,13 +132,7 @@ function ready(videoGameData) {
         .enter()
         .append('option')
         .text(d => d);
-
-    select.on('change', function() {
-      const selectedRegion = d3.select(this).property('value');
-      setBarChartCanvas(publisherSalesData, selectedRegion);
-    });
-    // 建立長條圖的 canvas
-    setBarChartCanvas(publisherSalesData, regions[0]);
+    setEricBarChartCanvas(publisherSalesData, regions[0]);
   }
 // 資料讀取和entry point和data cleaning
 d3.csv('./data/Video_Games_Sales_as_at_22_Dec_2016.csv', type).then(

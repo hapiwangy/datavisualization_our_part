@@ -1,0 +1,54 @@
+svg {
+  border: 1px solid #ccc;
+}
+
+.axis .domain {
+  stroke: none;
+}
+
+.x line {
+  stroke: white;
+}
+
+.y-axis {
+  white-space: nowrap;
+  text-overflow: ellipsis;
+  overflow: hidden;
+}
+
+header {
+  background-color: #333;
+  color: #fff;
+  padding: 20px;
+}
+.tooltip{
+  position: fixed;
+  opacity: 0;
+  pointer-events: none;
+  background: #eee;
+  max-width: 200px;
+}
+.tip-header{
+  border-bottom:2px solid rgb(255, 255, 255);
+  padding: 0.9rem 1rem;
+}
+.tip-body{
+  padding:0.2rem 0;
+}
+h3,h4{
+  font-size:0.9rem;
+  color:#555;
+  margin:0;
+}
+h4{
+  font-weight:normal;
+}
+.tip-info{
+  margin:0;
+  padding:0.3rem 1em;
+  font-size:0.8em;
+}
+/*偶數元素設定不同背景樣式*/
+.tip-info:nth-of-type(even){
+  background:#e0e0e0;
+}
